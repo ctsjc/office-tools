@@ -17,10 +17,12 @@ import java.util.stream.Stream;
 public class Entry {
 
     final static String algorithm="AES";
+
     final static String fileNameOption = "f";
     final static String keyOption = "k";
     final static String decryptOption = "d";
     final static String encryptOption = "e";
+    final static String encryptFileOption = "ef";
 
     public static String encrypt(SecretKeySpec key, String data){
         byte[] dataToSend = data.getBytes();
@@ -50,6 +52,15 @@ public class Entry {
     }
 
 
+    public static void encrypt(SecretKeySpec key, File file){
+        try (Stream<String> stream = Files.lines(Paths.get(file.getAbsolutePath()))) {
+            stream.map(s -> encrypt(key,s)).forEach(System.out::println);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
     public static void decrypt(SecretKeySpec key, File file){
         try (Stream<String> stream = Files.lines(Paths.get(file.getAbsolutePath()))) {
 
@@ -72,13 +83,18 @@ public class Entry {
 
         SecretKeySpec secretKeySpec = getSecretKeySpec(key);
 
-        if(cmd.hasOption("e")) {
+        if(cmd.hasOption(encryptOption)) {
 
             String encryptValue = Entry.encrypt(secretKeySpec, valueToEncrypt);
             System.out.println("\nEncrypted Value\n\t"+valueToEncrypt+"\n\t"+encryptValue);
         }
 
-        if(cmd.hasOption("d")) {
+
+        if(cmd.hasOption(encryptFileOption)) {
+            String toEncryptFile=cmd.getOptionValue(encryptFileOption);
+            Entry.encrypt(secretKeySpec, new File(toEncryptFile));
+        }
+        if(cmd.hasOption(decryptOption)) {
             System.out.println("\nDecrypted Value\n\t"+valueToDecrypy+"\n\t"+Entry.decrypt(secretKeySpec,valueToDecrypy));
         }
 
@@ -96,6 +112,7 @@ public class Entry {
         options.addOption(new Option(keyOption, true, "key"));
         options.addOption(new Option(decryptOption, true, "value to decrypt."));
         options.addOption(new Option(encryptOption, true, "value to encrypt."));
+        options.addOption(new Option(encryptFileOption, true, "value to encrypt."));
         CommandLineParser parser = new DefaultParser();
         return parser.parse( options, args);
     }
