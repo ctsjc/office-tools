@@ -17,6 +17,10 @@ import java.util.stream.Stream;
 public class Entry {
 
     final static String algorithm="AES";
+    final static String fileNameOption = "f";
+    final static String keyOption = "k";
+    final static String decryptOption = "d";
+    final static String encryptOption = "e";
 
     public static String encrypt(SecretKeySpec key, String data){
         byte[] dataToSend = data.getBytes();
@@ -57,33 +61,41 @@ public class Entry {
     }
     public static void main(String[] args) throws Exception {
 
-        String fileNameOption = "f";
-        CommandLine cmd = getCommandLine(args, fileNameOption);
+
+        CommandLine cmd = getCommandLine(args);
         String filename=cmd.getOptionValue(fileNameOption);
-        String key=cmd.getOptionValue("k");
-        String value=cmd.getOptionValue("d");
-        System.out.println(filename+"\t"+key+"\t"+value);
+        String key=cmd.getOptionValue(keyOption);
+        String valueToEncrypt=cmd.getOptionValue(encryptOption);
+        String valueToDecrypy=cmd.getOptionValue(decryptOption);
+
+        System.out.println(filename+"\t"+key+"\t"+valueToEncrypt+"\t"+valueToDecrypy);
 
         SecretKeySpec secretKeySpec = getSecretKeySpec(key);
 
-        if(cmd.hasOption("d")) {
-            String encryptValue = Entry.encrypt(secretKeySpec, value);
-            System.out.println(encryptValue);
-        }
-        //System.out.println(Entry.decrypt(secretKeySpec,encryptValue));
+        if(cmd.hasOption("e")) {
 
-        if(cmd.hasOption(fileNameOption))
-            Entry.decrypt(secretKeySpec,new File(filename));
+            String encryptValue = Entry.encrypt(secretKeySpec, valueToEncrypt);
+            System.out.println("\nEncrypted Value\n\t"+valueToEncrypt+"\n\t"+encryptValue);
+        }
+
+        if(cmd.hasOption("d")) {
+            System.out.println("\nDecrypted Value\n\t"+valueToDecrypy+"\n\t"+Entry.decrypt(secretKeySpec,valueToDecrypy));
+        }
+
+        if(cmd.hasOption(fileNameOption)) {
+            System.out.println("\nDecrypted Values From File");
+            Entry.decrypt(secretKeySpec, new File(filename));
+        }
 
     }
 
-    private static CommandLine getCommandLine(String[] args, String fileNameOption) throws ParseException {
-        System.out.println("-f /j/pass.txt -k key -d value");
+    private static CommandLine getCommandLine(String[] args) throws ParseException {
+        System.out.println("-f /j/pass.txt -k key -d value -e value");
         final Options options = new Options();
         options.addOption(new Option(fileNameOption, true, "File name"));
-
-        options.addOption(new Option("k", true, "key"));
-        options.addOption(new Option("d", true, "value to decrypt."));
+        options.addOption(new Option(keyOption, true, "key"));
+        options.addOption(new Option(decryptOption, true, "value to decrypt."));
+        options.addOption(new Option(encryptOption, true, "value to encrypt."));
         CommandLineParser parser = new DefaultParser();
         return parser.parse( options, args);
     }
