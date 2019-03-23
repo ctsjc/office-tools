@@ -1,0 +1,128 @@
+package com.jc.interview.longg;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class LongLargeSubarrayExample {
+    public static void main(String[] args) throws Exception {
+
+        //System.out.println("111");
+        int noOfTest=0;
+        long  N =0L;
+        long M= 0L;
+        long K= 0L;
+        List<Long> A=new ArrayList<>();
+        List<Long> B=new ArrayList<>();
+
+        List<Input> inputs=null;
+
+        String name;                // Reading input from STDIN
+        boolean firstLine=true;
+        boolean nmkLine=false;
+        boolean arrayLine=false;
+
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        while ((name = br.readLine()) != null) {
+
+            if(firstLine){
+                firstLine=false;
+                nmkLine=true;
+                noOfTest= Integer.parseInt(name);
+                inputs=new ArrayList<>(noOfTest);
+            }
+            else if(nmkLine){
+                nmkLine=false;
+                arrayLine=true;
+                A.clear();
+                String[] nmk = name.split(" ");
+                N=Long.parseLong(nmk[0]);
+                M=Long.parseLong(nmk[1]);
+                K=Long.parseLong(nmk[2]);
+            }else if(arrayLine){
+                arrayLine=false;
+                nmkLine=true;
+                String[] arrays = name.split(" ");
+                for(String str:arrays){
+                    A.add(Long.parseLong(str));
+                }
+
+                Input input=new Input(N,M,K,A);
+                inputs.add(input);
+            }
+        }
+
+        for(Input input:inputs){
+            K=input.K;
+            N=input.N;
+            M=input.M;
+            A=input.A;
+            long count =0;
+            long internalCount;
+            long sum;
+
+            long i=0;
+            long key;
+
+            Map<Long,Long> cache=new HashMap<>();
+
+            while( i < (N*M)){
+                internalCount=0;
+                long elm=A.get((int)(i%N));
+                if( elm > K){
+                    i++;
+                    continue;
+                }else{
+                    internalCount++;
+                    sum=elm;
+                    // get next element
+                    long j=i+1;
+                    while( j < (N*M)) {
+                        long element = A.get((int)(j%N));
+                        sum+=element;
+                        if(sum > K){
+                            break;
+                        }
+                        internalCount++;
+                        j++;
+                    }
+                    i++;
+                }//end of else
+                count+=internalCount;
+            }//end of while
+            System.out.println(count);
+        }// end of for test cases
+    }
+
+
+}
+
+class Input{
+    long  N;
+    long  M;
+    long  K;
+    List<Long> A;
+    public Input(long n, long m, long k, List<Long> a) {
+        N = n;
+        M = m;
+        K = k;
+        A = new ArrayList<>(a);
+    }
+
+    @Override
+    public String toString() {
+        return "com.jc.interview.tt.com.jc.interview.longg.Input{" +
+                "N=" + N +
+                ", M=" + M +
+                ", K=" + K +
+                ", A=" + A +
+
+                '}';
+    }
+}
